@@ -18,6 +18,20 @@ public class RegisterRequest implements Serializable {
     String username;
 
     @Pattern(
+            regexp = "^[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]+$",
+            message = "Imię może zawierać tylko litery"
+    )
+    @NotBlank(message = "Imie nie może być puste")
+    String firstName;
+
+    @Pattern(
+            regexp = "^[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]+$",
+            message = "Nazwisko może zawierać tylko litery"
+    )
+    @NotBlank(message = "Nazwisko nie może być puste")
+    String lastName;
+
+    @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!])\\S{8,50}$",
             message = "Hasło musi mieć min. 8 znaków, wielką literę, małą literę, cyfrę i znak specjalny"
     )
