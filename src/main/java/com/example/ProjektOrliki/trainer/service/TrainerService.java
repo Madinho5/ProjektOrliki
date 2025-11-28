@@ -23,5 +23,4 @@ public class TrainerService {
                     return repository.save(trainer);
                 });
     }
-
 }
