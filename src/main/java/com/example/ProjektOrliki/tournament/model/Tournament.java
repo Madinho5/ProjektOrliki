@@ -25,4 +25,5 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private TournamentStatus status;
 
+    private Integer teamCount;
 }

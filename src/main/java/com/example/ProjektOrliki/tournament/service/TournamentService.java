@@ -22,6 +22,7 @@ public class TournamentService {
                 .name(request.getName())
                 .startDate(request.getStartDate())
                 .status(TournamentStatus.CREATED)
+                .teamCount(request.getTeamCount())
                 .build();
         Tournament savedTournament = repository.save(tournament);
         return toResponse(savedTournament);
@@ -41,6 +42,7 @@ public class TournamentService {
 
         tournament.setName(request.getName());
         tournament.setStartDate(request.getStartDate());
+        tournament.setTeamCount(request.getTeamCount());
 
         Tournament updatedTournament = repository.save(tournament);
         return toResponse(updatedTournament);
@@ -56,7 +58,8 @@ public class TournamentService {
         return new TournamentResponse(
                 t.getName(),
                 t.getStartDate(),
-                t.getStatus()
+                t.getStatus(),
+                t.getTeamCount()
         );
     }
 }
