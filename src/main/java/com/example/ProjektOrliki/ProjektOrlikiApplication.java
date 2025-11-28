@@ -3,6 +3,8 @@ package com.example.ProjektOrliki;
 import com.example.ProjektOrliki.auth.model.Role;
 import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.auth.repository.UserRepository;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,6 +31,8 @@ public class ProjektOrlikiApplication {
                     .username(username)
                     .password(passwordEncoder.encode("admin"))
                     .role(Role.ADMIN)
+                    .firstName("admin")
+                    .lastName("admin")
                     .build();
 
             userRepository.save(admin);
