@@ -14,4 +14,5 @@ public class TournamentResponse implements Serializable {
     String name;
     LocalDate startDate;
     TournamentStatus status;
+    Integer teamCount;
 }
