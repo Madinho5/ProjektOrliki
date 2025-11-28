@@ -27,15 +27,12 @@ public class AuthService {
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
             .role(Role.TRAINER)
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .phoneNumber(null)
             .build();
 
         userRepository.save(user);
-
-        trainerService.createTrainer(
-                user,
-                request.getFirstName(),
-                request.getLastName()
-        );
     }
 
     public void login(LoginRequest request){
