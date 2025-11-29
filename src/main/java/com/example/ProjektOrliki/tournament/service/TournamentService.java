@@ -1,6 +1,10 @@
 package com.example.ProjektOrliki.tournament.service;
 
-import com.example.ProjektOrliki.team.dto.TeamResponse;
+import com.example.ProjektOrliki.auth.service.CurrentUserService;
+import com.example.ProjektOrliki.auth.model.User;
+import com.example.ProjektOrliki.team.model.Team;
+import com.example.ProjektOrliki.player.model.PlayerPosition;
+import com.example.ProjektOrliki.team.repository.TeamRepository;
 import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
 import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
 import com.example.ProjektOrliki.tournament.model.Tournament;
@@ -15,6 +19,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TournamentService {
     private final TournamentRepository repository;
+    private final TeamRepository teamRepository;
+    private final CurrentUserService currentUserService;
 
     public TournamentResponse create(TournamentRequest request) {
         if(repository.existsByName(request.getName())){
@@ -30,6 +36,7 @@ public class TournamentService {
         Tournament savedTournament = repository.save(tournament);
         return toResponse(savedTournament);
     }
+
     public TournamentResponse getById(Long id) {
             Tournament tournament = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
         return toResponse(tournament);
@@ -55,6 +62,7 @@ public class TournamentService {
         Tournament updatedTournament = repository.save(tournament);
         return toResponse(updatedTournament);
     }
+
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new IllegalArgumentException("Nie znaleziono turnieju o id: " + id);
@@ -80,4 +88,48 @@ public class TournamentService {
         );
     }
 
+    public void registerTeam(Long tournamentId) {
+        User trainer = currentUserService.getCurrentUser();
+
+        Tournament tournament = repository.findById(tournamentId)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + tournamentId));
+
+        if (tournament.getStatus() != TournamentStatus.REGISTRATION_OPENED) {
+            throw new IllegalArgumentException("Rejestracja na ten turniej jest zamknięta.");
+        }
+
+        Team team = teamRepository.findByTrainer(trainer)
+                .orElseThrow(() -> new IllegalStateException("Trener nie ma przypisanej drużyny."));
+
+        if (tournament.getTeams().contains(team)) {
+            throw new IllegalArgumentException("Drużyna jest już zgłoszona do tego turnieju.");
+        }
+
+        if (tournament.getTeams().size() >= tournament.getTeamCount()) {
+            throw new IllegalArgumentException("Osiągnięto limit drużyn.");
+        }
+
+        int playerCount = team.getPlayers().size();
+        if (playerCount < 7) {
+            throw new IllegalArgumentException("Drużyna musi mieć co najmniej 7 zawodników.");
+        }
+        if (playerCount > 10) {
+            throw new IllegalArgumentException("Drużyna może mieć maksymalnie 10 zawodników.");
+        }
+
+        boolean hasGK = team.getPlayers().stream()
+                .anyMatch(p -> p.getPosition() == PlayerPosition.GK);
+
+        if (!hasGK) {
+            throw new IllegalArgumentException("Drużyna musi mieć przynajmniej jednego bramkarza.");
+        }
+
+        tournament.getTeams().add(team);
+
+        if (tournament.getTeams().size() == tournament.getTeamCount()) {
+            tournament.setStatus(TournamentStatus.REGISTRATION_CLOSED);
+        }
+
+        repository.save(tournament);
+    }
 }

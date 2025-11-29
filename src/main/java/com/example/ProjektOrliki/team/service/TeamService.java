@@ -52,4 +52,30 @@ public class TeamService {
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
         return toResponse(team);
     }
+
+    public TeamResponse updateMyTeam(TeamRequest request) {
+        User trainer = currentUserService.getCurrentUser();
+
+        Team team = teamRepository.findByTrainer(trainer)
+                .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
+
+        if (!team.getName().equals(request.getName()) &&
+                teamRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Drużyna o takiej nazwie już istnieje.");
+        }
+
+        team.setName(request.getName());
+        teamRepository.save(team);
+
+        return toResponse(team);
+    }
+
+    public void deleteMyTeam() {
+        User trainer = currentUserService.getCurrentUser();
+
+        Team team = teamRepository.findByTrainer(trainer)
+                .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
+
+        teamRepository.delete(team);
+    }
 }
