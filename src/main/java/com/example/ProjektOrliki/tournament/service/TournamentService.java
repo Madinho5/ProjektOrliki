@@ -1,5 +1,6 @@
 package com.example.ProjektOrliki.tournament.service;
 
+import com.example.ProjektOrliki.team.dto.TeamResponse;
 import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
 import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
 import com.example.ProjektOrliki.tournament.model.Tournament;
@@ -7,6 +8,8 @@ import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.tournament.repository.TournamentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +35,11 @@ public class TournamentService {
         return toResponse(tournament);
     }
 
+    public List<TournamentResponse> getByStatus(TournamentStatus status) {
+        return repository.findByStatus(status).stream()
+                .map(this::toResponse)
+                .toList();
+    }
     public TournamentResponse update(Long id, TournamentRequest request) {
         Tournament tournament = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
@@ -54,6 +62,14 @@ public class TournamentService {
         repository.deleteById(id);
     }
 
+    public TournamentResponse updateStatus(Long id, TournamentStatus newStatus) {
+        Tournament tournament = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
+
+        tournament.setStatus(newStatus);
+
+        return toResponse(repository.save(tournament));
+    }
     private TournamentResponse toResponse(Tournament t) {
         return new TournamentResponse(
                 t.getId(),
@@ -63,4 +79,5 @@ public class TournamentService {
                 t.getTeamCount()
         );
     }
+
 }
