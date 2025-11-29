@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TrainerService trainerService;
 
     public void registerTrainer(RegisterRequest request){
         if(userRepository.findByUsername(request.getUsername()).isPresent()){

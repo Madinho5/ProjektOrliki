@@ -43,6 +43,7 @@
                             .requestMatchers(HttpMethod.DELETE,"/tournaments/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.GET,"/tournaments/**").authenticated()
 
+                            .requestMatchers(HttpMethod.POST, "/teams/**").hasRole("TRAINER")
                             .anyRequest().authenticated()
                     )
                     .userDetailsService(userDetailsService)

@@ -13,5 +13,4 @@ public class PlayerRequest implements Serializable {
     String lastName;
     Integer age;
     String position;
-    Long trainerId;
 }

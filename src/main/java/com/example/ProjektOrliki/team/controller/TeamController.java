@@ -15,13 +15,13 @@ public class TeamController {
     private final TeamService teamService;
 
     @PostMapping
-    public ResponseEntity<TeamResponse> createTeam(@RequestBody TeamRequest request) {
+    public ResponseEntity<?> createTeam(@RequestBody TeamRequest request) {
         TeamResponse response = teamService.createTeam(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/my")
-    public ResponseEntity<TeamResponse> getMyTeam() {
+    @GetMapping("/mine")
+    public ResponseEntity<?> getMyTeam() {
         return ResponseEntity.ok(teamService.getMyTeam());
     }
 }

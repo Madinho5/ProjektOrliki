@@ -15,21 +15,10 @@ import java.util.List;
 public class PlayerController {
 
     private final PlayerService playerService;
-//    @PostMapping
-//    private Player createPlayer(@RequestBody PlayerRequest request){
-//        return playerService.createPlayer(
-//                request.getTrainerId(),
-//                request.getFirstName(),
-//                request.getLastName(),
-//                request.getAge(),
-//                PlayerPosition.valueOf(request.getPosition())
-//        );
-//    }
-//
-//    @GetMapping("/trainer/{trainerId}")
-//    public List<Player> getPlayerByTrainer(@PathVariable Long trainerId) {
-//        return playerService.getPlayersByTrainer(trainerId);
-//    }
 
-
+    @PostMapping
+    public Player create(@RequestBody PlayerRequest request) {
+        return playerService.createPlayer(request);
+    }
 }
+
