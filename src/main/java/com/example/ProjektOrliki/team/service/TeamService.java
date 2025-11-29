@@ -2,6 +2,7 @@ package com.example.ProjektOrliki.team.service;
 
 import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.auth.repository.UserRepository;
+import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.team.dto.TeamRequest;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.dto.TeamResponse;
@@ -17,13 +18,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class TeamService {
     private final TeamRepository teamRepository;
-    private final UserRepository userRepository;
-
-    private User getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new IllegalStateException("Nie znaleziono użytkownika."));
-    }
+    private final CurrentUserService currentUserService;
 
     private TeamResponse toResponse(Team team) {
         return new TeamResponse(
@@ -33,7 +28,7 @@ public class TeamService {
         );
     }
     public TeamResponse createTeam(TeamRequest request) {
-        User trainer = getCurrentUser();
+        User trainer = currentUserService.getCurrentUser();
 
         if (teamRepository.existsByTrainer(trainer)) {
             throw new IllegalArgumentException(("Ten trener ma już przypisaną drużynę."));
@@ -51,7 +46,7 @@ public class TeamService {
     }
 
     public TeamResponse getMyTeam() {
-        User trainer = getCurrentUser();
+        User trainer = currentUserService.getCurrentUser();
 
         Team team = teamRepository.findByTrainer(trainer)
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));

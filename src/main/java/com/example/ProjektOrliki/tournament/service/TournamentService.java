@@ -56,6 +56,7 @@ public class TournamentService {
 
     private TournamentResponse toResponse(Tournament t) {
         return new TournamentResponse(
+                t.getId(),
                 t.getName(),
                 t.getStartDate(),
                 t.getStatus(),

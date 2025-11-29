@@ -11,6 +11,7 @@ import java.time.LocalDate;
  */
 @Value
 public class TournamentResponse implements Serializable {
+    Long id;
     String name;
     LocalDate startDate;
     TournamentStatus status;

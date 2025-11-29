@@ -37,6 +37,6 @@ public class TournamentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         tournamentService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Usunięto turniej o id: " + id );
+        return ResponseEntity.status(HttpStatus.OK).body("Usunięto turniej o id: " + id );
     }
 }

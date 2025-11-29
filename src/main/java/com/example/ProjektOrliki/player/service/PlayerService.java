@@ -2,6 +2,7 @@ package com.example.ProjektOrliki.player.service;
 
 import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.auth.repository.UserRepository;
+import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.player.dto.PlayerRequest;
 import com.example.ProjektOrliki.player.model.Player;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
@@ -18,23 +19,17 @@ import org.springframework.stereotype.Service;
 public class PlayerService {
 
     private final TeamRepository teamRepository;
-    private final UserRepository userRepository;
     private final PlayerRepository playerRepository;
-
-    private User getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new IllegalStateException("Nie znaleziono użytkownika."));
-    }
+    private final CurrentUserService currentUserService;
 
     public Player createPlayer(PlayerRequest request) {
-        User trainer = getCurrentUser();
+        User trainer = currentUserService.getCurrentUser();
 
         Team team = teamRepository.findByTrainer(trainer)
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
 
-        if (team.getPlayers().size() >= 20) {
-            throw new IllegalArgumentException("Drużyna osiągnęła limit 20 zawodników.");
+        if (team.getPlayers().size() >= 10) {
+            throw new IllegalArgumentException("Drużyna osiągnęła limit 10 zawodników.");
         }
 
         Player player = Player.builder()
