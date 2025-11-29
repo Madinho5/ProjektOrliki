@@ -1,6 +1,7 @@
 package com.example.ProjektOrliki.player.model;
 
 import com.example.ProjektOrliki.auth.model.User;
+import com.example.ProjektOrliki.team.model.Team;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,12 +25,11 @@ public class Player {
 
     private Integer age;
 
-    @Column(nullable = false)
-    private String position;
-
+    @Enumerated(EnumType.STRING)
+    private PlayerPosition position;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trainer_id", nullable = false)
-    private User trainer;
+    @JoinColumn(name = "team_id")
+    private Team team;
 
 }
