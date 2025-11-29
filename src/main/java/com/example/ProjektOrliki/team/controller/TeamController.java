@@ -24,4 +24,15 @@ public class TeamController {
     public ResponseEntity<?> getMyTeam() {
         return ResponseEntity.ok(teamService.getMyTeam());
     }
+
+    @PutMapping("/mine")
+    @ResponseStatus(HttpStatus.OK)
+    public TeamResponse updateMyTeam(@RequestBody TeamRequest request) {
+        return teamService.updateMyTeam(request);
+    }
+    @DeleteMapping("/mine")
+    public ResponseEntity<?> deleteMyTeam() {
+        teamService.deleteMyTeam();
+        return ResponseEntity.status(HttpStatus.OK).body("Usunięto drużynę");
+    }
 }

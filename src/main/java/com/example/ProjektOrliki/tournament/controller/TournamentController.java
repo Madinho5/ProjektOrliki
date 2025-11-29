@@ -58,4 +58,12 @@ public class TournamentController {
         return tournamentService.getByStatus(status);
     }
 
+    @PostMapping("/{id}/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public String registerTeam(@PathVariable Long id) {
+        tournamentService.registerTeam(id);
+        return "Drużyna zgłoszona do turnieju.";
+    }
+
+
 }

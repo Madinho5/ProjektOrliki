@@ -38,6 +38,7 @@
                             .requestMatchers(HttpMethod.POST,"/auth/register").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
 
+                            .requestMatchers(HttpMethod.POST, "/tournaments/*/register").hasRole("TRAINER")
                             .requestMatchers(HttpMethod.POST,"/tournaments/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PUT,"/tournaments/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE,"/tournaments/**").hasRole("ADMIN")
