@@ -27,4 +27,9 @@
             String message = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
         }
+
+        @ExceptionHandler(IllegalStateException.class)
+        public ResponseEntity<?> handleIllegalStateException(IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
