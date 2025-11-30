@@ -1,17 +1,17 @@
 package com.example.ProjektOrliki.team.service;
 
 import com.example.ProjektOrliki.auth.model.User;
-import com.example.ProjektOrliki.auth.repository.UserRepository;
 import com.example.ProjektOrliki.auth.service.CurrentUserService;
+import com.example.ProjektOrliki.team.dto.TeamDetailsResponse;
 import com.example.ProjektOrliki.team.dto.TeamRequest;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.dto.TeamResponse;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
+import com.example.ProjektOrliki.player.model.PlayerPosition;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -27,6 +27,25 @@ public class TeamService {
                 team.getTrainer().getFirstName() + " " + team.getTrainer().getLastName()
         );
     }
+
+    private TeamDetailsResponse toDetailsResponse(Team team) {
+        List<TeamDetailsResponse.PlayerDto> players = team.getPlayers().stream()
+                .map(p -> new TeamDetailsResponse.PlayerDto(
+                        p.getId(),
+                        p.getFirstName(),
+                        p.getLastName(),
+                        p.getAge(),
+                        p.getPosition()
+                ))
+                .toList();
+
+        return new TeamDetailsResponse(
+                team.getId(),
+                team.getName(),
+                players
+        );
+    }
+
     public TeamResponse createTeam(TeamRequest request) {
         User trainer = currentUserService.getCurrentUser();
 
@@ -45,12 +64,12 @@ public class TeamService {
         return toResponse(teamRepository.save(team));
     }
 
-    public TeamResponse getMyTeam() {
+    public TeamDetailsResponse getMyTeam() {
         User trainer = currentUserService.getCurrentUser();
 
         Team team = teamRepository.findByTrainer(trainer)
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
-        return toResponse(team);
+        return toDetailsResponse(team);
     }
 
     public TeamResponse updateMyTeam(TeamRequest request) {
