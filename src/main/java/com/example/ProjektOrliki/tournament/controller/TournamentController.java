@@ -1,5 +1,6 @@
 package com.example.ProjektOrliki.tournament.controller;
 
+import com.example.ProjektOrliki.tournament.dto.TournamentDetailsResponse;
 import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
 import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
 import com.example.ProjektOrliki.tournament.dto.TournamentStatusRequest;
@@ -28,7 +29,7 @@ public class TournamentController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TournamentResponse findById(@PathVariable Long id) {
+    public TournamentDetailsResponse findById(@PathVariable Long id) {
         return tournamentService.getById(id);
     }
 

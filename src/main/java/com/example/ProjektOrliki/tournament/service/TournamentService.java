@@ -5,6 +5,7 @@ import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
+import com.example.ProjektOrliki.tournament.dto.TournamentDetailsResponse;
 import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
 import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
 import com.example.ProjektOrliki.tournament.model.Tournament;
@@ -37,9 +38,10 @@ public class TournamentService {
         return toResponse(savedTournament);
     }
 
-    public TournamentResponse getById(Long id) {
-            Tournament tournament = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
-        return toResponse(tournament);
+    public TournamentDetailsResponse getById(Long id) {
+        Tournament t = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
+        return toDetailsResponse(t);
     }
 
     public List<TournamentResponse> getByStatus(TournamentStatus status) {
@@ -78,6 +80,7 @@ public class TournamentService {
 
         return toResponse(repository.save(tournament));
     }
+
     private TournamentResponse toResponse(Tournament t) {
         return new TournamentResponse(
                 t.getId(),
@@ -85,6 +88,27 @@ public class TournamentService {
                 t.getStartDate(),
                 t.getStatus(),
                 t.getTeamCount()
+        );
+    }
+
+    private TournamentDetailsResponse toDetailsResponse(Tournament t) {
+
+        List<TournamentDetailsResponse.TeamDto> teams = t.getTeams().stream()
+                .map(team -> new TournamentDetailsResponse.TeamDto(team.getId(), team.getName()))
+                .toList();
+
+        Long winnerId = (t.getWinner() != null) ? t.getWinner().getId() : null;
+        String winnerName = (t.getWinner() != null) ? t.getWinner().getName() : null;
+
+        return new TournamentDetailsResponse(
+                t.getId(),
+                t.getName(),
+                t.getStartDate(),
+                t.getStatus(),
+                t.getTeamCount(),
+                teams,
+                winnerId,
+                winnerName
         );
     }
 
