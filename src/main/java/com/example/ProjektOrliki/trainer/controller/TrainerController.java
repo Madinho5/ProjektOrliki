@@ -5,6 +5,7 @@ import com.example.ProjektOrliki.auth.repository.UserRepository;
 import com.example.ProjektOrliki.trainer.dto.TrainerResponse;
 import com.example.ProjektOrliki.trainer.dto.TrainerUpdateRequest;
 import com.example.ProjektOrliki.trainer.service.TrainerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -34,7 +35,7 @@ public class TrainerController {
 
     @PutMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public TrainerResponse updateMyProfile(@RequestBody TrainerUpdateRequest request) {
+    public TrainerResponse updateMyProfile(@Valid @RequestBody TrainerUpdateRequest request) {
         User trainer = getCurrentTrainer();
         return trainerService.updateTrainerProfile(trainer, request);
     }
