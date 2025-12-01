@@ -11,19 +11,22 @@ import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
 import com.example.ProjektOrliki.tournament.model.Tournament;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.tournament.repository.TournamentRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class TournamentService {
     private final TournamentRepository repository;
     private final TeamRepository teamRepository;
     private final CurrentUserService currentUserService;
 
-    public TournamentResponse create(TournamentRequest request) {
+    public TournamentResponse create(@Valid TournamentRequest request) {
         if(repository.existsByName(request.getName())){
             throw new IllegalArgumentException("Turniej o takiej nazwie juz istnieje");
         }

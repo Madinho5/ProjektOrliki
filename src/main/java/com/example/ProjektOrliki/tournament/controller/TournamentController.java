@@ -6,13 +6,16 @@ import com.example.ProjektOrliki.match.repository.MatchRepository;
 import com.example.ProjektOrliki.tournament.dto.*;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.bracket.service.BracketService;
+import com.example.ProjektOrliki.tournament.service.TournamentImportService;
 import com.example.ProjektOrliki.tournament.service.TournamentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,7 +26,7 @@ public class TournamentController {
     private final TournamentService tournamentService;
     private final BracketService bracketService;
     private final MatchRepository matchRepository;
-
+    private final TournamentImportService tournamentImportService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TournamentResponse create(@Valid @RequestBody TournamentRequest request) {
@@ -67,5 +70,9 @@ public class TournamentController {
     public String registerTeam(@PathVariable Long id) {
         tournamentService.registerTeam(id);
         return "Drużyna zgłoszona do turnieju.";
+    }
+    @PostMapping(value = "/import", consumes = "multipart/form-data")
+    public ImportResultDto importXml(@RequestParam("file") MultipartFile file) throws IOException {
+        return tournamentImportService.importXml(file.getInputStream());
     }
 }
