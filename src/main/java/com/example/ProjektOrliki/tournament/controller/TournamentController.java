@@ -1,10 +1,12 @@
 package com.example.ProjektOrliki.tournament.controller;
 
 import com.example.ProjektOrliki.tournament.dto.TournamentDetailsResponse;
-import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
-import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
-import com.example.ProjektOrliki.tournament.dto.TournamentStatusRequest;
+import com.example.ProjektOrliki.match.dto.MatchDto;
+import com.example.ProjektOrliki.match.model.Match;
+import com.example.ProjektOrliki.match.repository.MatchRepository;
+import com.example.ProjektOrliki.tournament.dto.*;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
+import com.example.ProjektOrliki.tournament.service.BracketService;
 import com.example.ProjektOrliki.tournament.service.TournamentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tournaments")
@@ -20,6 +25,8 @@ import java.util.List;
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private final BracketService bracketService;
+    private final MatchRepository matchRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -64,6 +71,39 @@ public class TournamentController {
     public String registerTeam(@PathVariable Long id) {
         tournamentService.registerTeam(id);
         return "Drużyna zgłoszona do turnieju.";
+    }
+
+    @GetMapping("/{id}/matches")
+    @ResponseStatus(HttpStatus.OK)
+    public BracketDto getBracket(@PathVariable Long id) {
+        List<Match> matches = matchRepository.findByTournamentId(id);
+        Map<Integer, List<MatchDto>> grouped = matches.stream()
+                .map(m -> new MatchDto(
+                        m.getId(),
+                        m.getMatchNumber(),
+                        m.getTeamA().getName(),
+                        m.getTeamB().getName(),
+                        m.getScoreA(),
+                        m.getScoreB(),
+                        m.getWinner().getName()
+                ))
+                .collect(Collectors.groupingBy(
+                        MatchDto::getMatchNumber,
+                        TreeMap::new,
+                        Collectors.toList()
+                ));
+
+        List<BracketRoundDto> rounds = grouped.entrySet().stream()
+                .map(e -> new BracketRoundDto(e.getKey(), e.getValue()))
+                .toList();
+
+        return new BracketDto(rounds);
+    }
+
+    @PostMapping("/{id}/next-round")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MatchDto> generateNextRound(@PathVariable Long id) {
+        return bracketService.generateNextRound(id);
     }
 
 
