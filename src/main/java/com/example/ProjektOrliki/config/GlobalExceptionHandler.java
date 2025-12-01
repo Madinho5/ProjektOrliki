@@ -6,6 +6,7 @@
     import org.springframework.web.bind.MethodArgumentNotValidException;
     import org.springframework.web.bind.annotation.ExceptionHandler;
     import org.springframework.web.bind.annotation.RestControllerAdvice;
+    import org.springframework.http.converter.HttpMessageNotReadableException;
 
     import java.util.Objects;
 
@@ -31,5 +32,10 @@
         @ExceptionHandler(IllegalStateException.class)
         public ResponseEntity<?> handleIllegalStateException(IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<?> handleHttpMessageNotReadableException() {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Niepoprawny format danych wejściowych");
         }
     }
