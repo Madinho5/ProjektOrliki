@@ -1,9 +1,11 @@
-package com.example.ProjektOrliki.tournament.service;
+package com.example.ProjektOrliki.bracket.service;
 
 import com.example.ProjektOrliki.match.dto.MatchDto;
 import com.example.ProjektOrliki.match.model.Match;
 import com.example.ProjektOrliki.match.repository.MatchRepository;
 import com.example.ProjektOrliki.team.model.Team;
+import com.example.ProjektOrliki.bracket.dto.BracketDto;
+import com.example.ProjektOrliki.bracket.dto.BracketRoundDto;
 import com.example.ProjektOrliki.tournament.model.Tournament;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.tournament.repository.TournamentRepository;
@@ -104,7 +106,7 @@ public class BracketService {
         }
 
         if (nextRoundTeams.size() == 1) {
-            Team champ = nextRoundTeams.get(0);
+            Team champ = nextRoundTeams.getFirst();
             tournament.setWinner(champ);
             tournament.setStatus(TournamentStatus.FINISHED);
             tournamentRepository.save(tournament);
@@ -118,7 +120,39 @@ public class BracketService {
         return dtos;
     }
 
+    public BracketDto getBracket(Long tournamentId) {
 
+        List<Match> matches = matchRepository.findByTournamentId(tournamentId);
 
+        Map<Integer, List<MatchDto>> grouped =
+                matches.stream()
+                        .collect(Collectors.groupingBy(
+                                Match::getRoundNumber,
+                                TreeMap::new,
+                                Collectors.mapping(
+                                        m -> new MatchDto(
+                                                m.getId(),
+                                                m.getMatchNumber(),
+                                                m.getTeamA().getName(),
+                                                m.getTeamB().getName(),
+                                                m.getScoreA(),
+                                                m.getScoreB(),
+                                                m.getWinner().getName()
+                                        ),
+                                        Collectors.collectingAndThen(
+                                                Collectors.toList(),
+                                                list -> list.stream()
+                                                        .sorted(Comparator.comparing(MatchDto::getMatchNumber))
+                                                        .toList()
+                                        )
+                                )
+                        ));
+
+        List<BracketRoundDto> rounds = grouped.entrySet().stream()
+                .map(e -> new BracketRoundDto(e.getKey(), e.getValue()))
+                .toList();
+
+        return new BracketDto(rounds);
+    }
 
 }
