@@ -1,4 +1,4 @@
-package com.example.ProjektOrliki.tournament.dto;
+package com.example.ProjektOrliki.bracket.dto;
 
 import lombok.Value;
 
