@@ -40,4 +40,6 @@ public class Tournament {
     @ManyToOne
     @JoinColumn(name="winner_id")
     private Team winner;
+
+    private Integer currentRound;
 }
