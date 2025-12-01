@@ -2,6 +2,7 @@ package com.example.ProjektOrliki.tournament.service;
 
 import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.auth.model.User;
+import com.example.ProjektOrliki.match.repository.MatchRepository;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
@@ -11,7 +12,7 @@ import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
 import com.example.ProjektOrliki.tournament.model.Tournament;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.tournament.repository.TournamentRepository;
-import jakarta.validation.Valid;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -25,10 +26,19 @@ public class TournamentService {
     private final TournamentRepository repository;
     private final TeamRepository teamRepository;
     private final CurrentUserService currentUserService;
+    private final MatchRepository matchRepository;
 
-    public TournamentResponse create(@Valid TournamentRequest request) {
+    private boolean isTeamCountValid(int n) {
+        return n > 0 && ((n & (n - 1)) == 0);
+    }
+
+    public TournamentResponse create(TournamentRequest request) {
         if(repository.existsByName(request.getName())){
             throw new IllegalArgumentException("Turniej o takiej nazwie juz istnieje");
+        }
+
+        if (!isTeamCountValid(request.getTeamCount())) {
+            throw new IllegalArgumentException("Liczba drużyn musi być jedną z: 2, 4, 8 lub 16.");
         }
 
         Tournament tournament = Tournament.builder()
@@ -56,8 +66,16 @@ public class TournamentService {
         Tournament tournament = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
 
+        if (tournament.getStatus() != TournamentStatus.CREATED && tournament.getStatus() != TournamentStatus.REGISTRATION_OPENED) {
+            throw new IllegalArgumentException("Nie można edytować tego turnieju");
+        }
+
         if(!tournament.getName().equals(request.getName()) && repository.existsByName(request.getName())){
             throw new IllegalArgumentException("Turniej o takiej nazwie juz istnieje");
+        }
+
+        if (tournament.getTeams().size() > request.getTeamCount()) {
+            throw new IllegalArgumentException("Nowy limit drużyn nie może być mniejszy niż liczba aktualnie zgłoszonych.");
         }
 
         tournament.setName(request.getName());
@@ -68,10 +86,13 @@ public class TournamentService {
         return toResponse(updatedTournament);
     }
 
+    @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new IllegalArgumentException("Nie znaleziono turnieju o id: " + id);
         }
+
+        matchRepository.deleteByTournamentId(id);
         repository.deleteById(id);
     }
 

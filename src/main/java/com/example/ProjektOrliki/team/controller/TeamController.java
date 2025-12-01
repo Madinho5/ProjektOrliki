@@ -3,6 +3,7 @@ package com.example.ProjektOrliki.team.controller;
 import com.example.ProjektOrliki.team.dto.TeamRequest;
 import com.example.ProjektOrliki.team.dto.TeamResponse;
 import com.example.ProjektOrliki.team.service.TeamService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ public class TeamController {
     private final TeamService teamService;
 
     @PostMapping
-    public ResponseEntity<?> createTeam(@RequestBody TeamRequest request) {
+    public ResponseEntity<?> createTeam(@Valid @RequestBody TeamRequest request) {
         TeamResponse response = teamService.createTeam(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -27,7 +28,7 @@ public class TeamController {
 
     @PutMapping("/mine")
     @ResponseStatus(HttpStatus.OK)
-    public TeamResponse updateMyTeam(@RequestBody TeamRequest request) {
+    public TeamResponse updateMyTeam(@Valid @RequestBody TeamRequest request) {
         return teamService.updateMyTeam(request);
     }
     @DeleteMapping("/mine")

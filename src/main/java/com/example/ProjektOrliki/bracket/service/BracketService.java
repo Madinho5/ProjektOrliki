@@ -121,6 +121,8 @@ public class BracketService {
     }
 
     public BracketDto getBracket(Long tournamentId) {
+        Tournament t = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju: " + tournamentId));
 
         List<Match> matches = matchRepository.findByTournamentId(tournamentId);
 

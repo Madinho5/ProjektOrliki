@@ -7,7 +7,6 @@ import com.example.ProjektOrliki.player.dto.PlayerResponse;
 import com.example.ProjektOrliki.player.model.Player;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
 import com.example.ProjektOrliki.player.repository.PlayerRepository;
-import com.example.ProjektOrliki.team.dto.TeamResponse;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,14 @@ public class PlayerService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final PlayerRepository playerRepository;
+
+    private PlayerPosition parsePosition(String pos) {
+        try {
+            return PlayerPosition.valueOf(pos.toUpperCase());
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Nieprawidłowa pozycja");
+        }
+    }
 
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -48,7 +55,7 @@ public class PlayerService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .age(request.getAge())
-                .position(PlayerPosition.valueOf(request.getPosition()))
+                .position(parsePosition(request.getPosition()))
                 .team(team)
                 .build();
 
@@ -57,7 +64,6 @@ public class PlayerService {
     }
 
     public PlayerResponse updatePlayer(Long id, PlayerRequest request) {
-        Team team = getTrainerTeam();
 
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zawodnika."));
@@ -69,7 +75,7 @@ public class PlayerService {
         player.setFirstName(request.getFirstName());
         player.setLastName(request.getLastName());
         player.setAge(request.getAge());
-        player.setPosition(PlayerPosition.valueOf(request.getPosition()));
+        player.setPosition(parsePosition(request.getPosition()));
 
         playerRepository.save(player);
         return toResponse(player);

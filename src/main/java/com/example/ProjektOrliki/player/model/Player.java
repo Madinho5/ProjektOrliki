@@ -1,6 +1,4 @@
 package com.example.ProjektOrliki.player.model;
-
-import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.team.model.Team;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,6 +21,7 @@ public class Player {
     @Column(nullable = false)
     private String lastName;
 
+    @Column(nullable = false)
     private Integer age;
 
     @Enumerated(EnumType.STRING)
