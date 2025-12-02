@@ -23,8 +23,8 @@ public class TournamentMapper {
                 .map(team -> new TournamentDetailsResponse.TeamDto(team.getId(), team.getName()))
                 .toList();
 
-        Long winnerId = t.getWinner().getId();
-        String winnerName = t.getWinner().getName();
+        Long winnerId = t.getWinner() != null ? t.getWinner().getId() : null;
+        String winnerName = t.getWinner() != null ? t.getWinner().getName() : null;
 
         return new TournamentDetailsResponse(
                 t.getId(),
