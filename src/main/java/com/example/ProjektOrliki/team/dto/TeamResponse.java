@@ -13,5 +13,4 @@ public class TeamResponse implements Serializable {
     Long id;
     String name;
     String trainerFullName;
-    
 }

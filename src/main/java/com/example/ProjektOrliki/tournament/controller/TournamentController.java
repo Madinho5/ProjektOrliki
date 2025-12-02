@@ -1,17 +1,15 @@
 package com.example.ProjektOrliki.tournament.controller;
 
 import com.example.ProjektOrliki.tournament.dto.TournamentDetailsResponse;
-import com.example.ProjektOrliki.match.dto.MatchDto;
-import com.example.ProjektOrliki.match.repository.MatchRepository;
 import com.example.ProjektOrliki.tournament.dto.*;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
-import com.example.ProjektOrliki.bracket.service.BracketService;
 import com.example.ProjektOrliki.tournament.service.TournamentImportService;
 import com.example.ProjektOrliki.tournament.service.TournamentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,28 +19,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/tournaments")
 @RequiredArgsConstructor
+@Validated
 public class TournamentController {
 
     private final TournamentService tournamentService;
-    private final BracketService bracketService;
-    private final MatchRepository matchRepository;
     private final TournamentImportService tournamentImportService;
+
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public TournamentResponse create(@Valid @RequestBody TournamentRequest request) {
-        return tournamentService.create(request);
+    public ResponseEntity<?> create(@Valid @RequestBody TournamentRequest request) {
+        TournamentResponse response = tournamentService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public TournamentDetailsResponse findById(@PathVariable Long id) {
-        return tournamentService.getById(id);
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        TournamentDetailsResponse response = tournamentService.getById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public TournamentResponse update(@PathVariable Long id, @Valid @RequestBody TournamentRequest request) {
-        return tournamentService.update(id, request);
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody TournamentRequest request) {
+        TournamentResponse response = tournamentService.update(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
@@ -52,27 +50,26 @@ public class TournamentController {
     }
 
     @PatchMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.OK)
-    public TournamentResponse updateStatus(@PathVariable Long id, @RequestBody TournamentStatusRequest request) {
-        return tournamentService.updateStatus(id,request.status());
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody TournamentStatusRequest request) {
+        TournamentResponse response = tournamentService.updateStatus(id, request.status());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<TournamentResponse> getByStatus(
-            @RequestParam TournamentStatus status
-    ) {
-        return tournamentService.getByStatus(status);
+    public ResponseEntity<?> getByStatus(@RequestParam TournamentStatus status) {
+        List<TournamentResponse> responses = tournamentService.getByStatus(status);
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
     @PostMapping("/{id}/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public String registerTeam(@PathVariable Long id) {
+    public ResponseEntity<?> registerTeam(@PathVariable Long id) {
         tournamentService.registerTeam(id);
-        return "Drużyna zgłoszona do turnieju.";
+        return ResponseEntity.status(HttpStatus.CREATED).body("Drużyna zgłoszona do turnieju");
     }
+
     @PostMapping(value = "/import", consumes = "multipart/form-data")
-    public ImportResultDto importXml(@RequestParam("file") MultipartFile file) throws IOException {
-        return tournamentImportService.importXml(file.getInputStream());
+    public ResponseEntity<?> importXml(@RequestParam("file") MultipartFile file) throws IOException {
+        ImportResultDto result = tournamentImportService.importXml(file.getInputStream());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
