@@ -3,7 +3,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:16
-    container_name: ProjektOrliki
+    container_name: orliki-postgres
     restart: always
     environment:
       POSTGRES_DB: ProjektOrliki
