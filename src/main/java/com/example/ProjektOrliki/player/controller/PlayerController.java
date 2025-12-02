@@ -18,19 +18,19 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PlayerResponse createPlayer(@Valid @RequestBody PlayerRequest request) {
-        return playerService.createPlayer(request);
+    public ResponseEntity<?> createPlayer(@Valid @RequestBody PlayerRequest request) {
+        PlayerResponse response = playerService.createPlayer(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public PlayerResponse updatePlayer(@PathVariable Long id, @Valid @RequestBody PlayerRequest request) {
-        return playerService.updatePlayer(id, request);
+    public ResponseEntity<?> updatePlayer(@PathVariable Long id, @Valid @RequestBody PlayerRequest request) {
+        PlayerResponse response = playerService.updatePlayer(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePlayer(@PathVariable Long id) {
+    public ResponseEntity<?> deletePlayer(@PathVariable Long id) {
         playerService.deletePlayer(id);
         return ResponseEntity.status(HttpStatus.OK).body("Usunięto zawodnika o id: " + id);
     }

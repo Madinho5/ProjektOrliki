@@ -1,17 +1,16 @@
 package com.example.ProjektOrliki.player.service;
 
 import com.example.ProjektOrliki.auth.model.User;
-import com.example.ProjektOrliki.auth.repository.UserRepository;
+import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.player.dto.PlayerRequest;
 import com.example.ProjektOrliki.player.dto.PlayerResponse;
+import com.example.ProjektOrliki.player.mapper.PlayerMapper;
 import com.example.ProjektOrliki.player.model.Player;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
 import com.example.ProjektOrliki.player.repository.PlayerRepository;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,8 +18,9 @@ import org.springframework.stereotype.Service;
 public class PlayerService {
 
     private final TeamRepository teamRepository;
-    private final UserRepository userRepository;
     private final PlayerRepository playerRepository;
+    private final CurrentUserService currentUserService;
+    private final PlayerMapper playerMapper;
 
     private PlayerPosition parsePosition(String pos) {
         try {
@@ -29,20 +29,14 @@ public class PlayerService {
             throw new IllegalArgumentException("Nieprawidłowa pozycja");
         }
     }
-
-    private User getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new IllegalStateException("Nie znaleziono użytkownika."));
-    }
-
     private Team getTrainerTeam() {
-        User trainer = getCurrentUser();
+        User trainer = currentUserService.getCurrentUser();
         return teamRepository.findByTrainer(trainer)
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
     }
+
     public PlayerResponse createPlayer(PlayerRequest request) {
-        User trainer = getCurrentUser();
+        User trainer = currentUserService.getCurrentUser();
 
         Team team = teamRepository.findByTrainer(trainer)
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
@@ -60,7 +54,7 @@ public class PlayerService {
                 .build();
 
         playerRepository.save(player);
-        return toResponse(player);
+        return playerMapper.toResponse(player);
     }
 
     public PlayerResponse updatePlayer(Long id, PlayerRequest request) {
@@ -78,33 +72,16 @@ public class PlayerService {
         player.setPosition(parsePosition(request.getPosition()));
 
         playerRepository.save(player);
-        return toResponse(player);
-    }
-
-    private PlayerResponse toResponse(Player p) {
-
-        return new PlayerResponse(
-                p.getFirstName(),
-                p.getLastName(),
-                p.getAge(),
-                p.getPosition(),
-                p.getTeam().getName(),
-                p.getTeam().getTrainer().getFirstName() + " " + p.getTeam().getTrainer().getLastName()
-        );
+        return playerMapper.toResponse(player);
     }
 
     public void deletePlayer(Long id) {
-        Team trainerTeam = getTrainerTeam();
-
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zawodnika."));
 
-        if (!player.getTeam().getId().equals(trainerTeam.getId())) {
+        if (!player.getTeam().getId().equals(getTrainerTeam().getId())) {
             throw new IllegalArgumentException("Nie możesz usuwać zawodników z innej drużyny.");
         }
-
         playerRepository.delete(player);
     }
-
-
 }

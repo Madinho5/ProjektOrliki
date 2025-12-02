@@ -1,7 +1,6 @@
 package com.example.ProjektOrliki.tournament.service;
 
 import com.example.ProjektOrliki.auth.service.CurrentUserService;
-import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.match.repository.MatchRepository;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
@@ -9,12 +8,15 @@ import com.example.ProjektOrliki.team.repository.TeamRepository;
 import com.example.ProjektOrliki.tournament.dto.TournamentDetailsResponse;
 import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
 import com.example.ProjektOrliki.tournament.dto.TournamentResponse;
+import com.example.ProjektOrliki.tournament.mapper.TournamentMapper;
 import com.example.ProjektOrliki.tournament.model.Tournament;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.tournament.repository.TournamentRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -26,13 +28,14 @@ public class TournamentService {
     private final TournamentRepository repository;
     private final TeamRepository teamRepository;
     private final CurrentUserService currentUserService;
+    private final TournamentMapper tournamentMapper;
     private final MatchRepository matchRepository;
 
     private boolean isTeamCountValid(int n) {
         return n > 0 && ((n & (n - 1)) == 0);
     }
 
-    public TournamentResponse create(TournamentRequest request) {
+    public TournamentResponse create(@Valid TournamentRequest request) {
         if(repository.existsByName(request.getName())){
             throw new IllegalArgumentException("Turniej o takiej nazwie juz istnieje");
         }
@@ -47,21 +50,24 @@ public class TournamentService {
                 .status(TournamentStatus.CREATED)
                 .teamCount(request.getTeamCount())
                 .build();
-        Tournament savedTournament = repository.save(tournament);
-        return toResponse(savedTournament);
+
+        Tournament saved = repository.save(tournament);
+        return tournamentMapper.toResponse(saved);
     }
 
     public TournamentDetailsResponse getById(Long id) {
         Tournament t = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
-        return toDetailsResponse(t);
+
+        return tournamentMapper.toDetailsResponse(t);
     }
 
     public List<TournamentResponse> getByStatus(TournamentStatus status) {
         return repository.findByStatus(status).stream()
-                .map(this::toResponse)
+                .map(tournamentMapper::toResponse)
                 .toList();
     }
+
     public TournamentResponse update(Long id, TournamentRequest request) {
         Tournament tournament = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
@@ -82,8 +88,7 @@ public class TournamentService {
         tournament.setStartDate(request.getStartDate());
         tournament.setTeamCount(request.getTeamCount());
 
-        Tournament updatedTournament = repository.save(tournament);
-        return toResponse(updatedTournament);
+        return tournamentMapper.toResponse(repository.save(tournament));
     }
 
     @Transactional
@@ -102,42 +107,11 @@ public class TournamentService {
 
         tournament.setStatus(newStatus);
 
-        return toResponse(repository.save(tournament));
-    }
-
-    private TournamentResponse toResponse(Tournament t) {
-        return new TournamentResponse(
-                t.getId(),
-                t.getName(),
-                t.getStartDate(),
-                t.getStatus(),
-                t.getTeamCount()
-        );
-    }
-
-    private TournamentDetailsResponse toDetailsResponse(Tournament t) {
-
-        List<TournamentDetailsResponse.TeamDto> teams = t.getTeams().stream()
-                .map(team -> new TournamentDetailsResponse.TeamDto(team.getId(), team.getName()))
-                .toList();
-
-        Long winnerId = (t.getWinner() != null) ? t.getWinner().getId() : null;
-        String winnerName = (t.getWinner() != null) ? t.getWinner().getName() : null;
-
-        return new TournamentDetailsResponse(
-                t.getId(),
-                t.getName(),
-                t.getStartDate(),
-                t.getStatus(),
-                t.getTeamCount(),
-                teams,
-                winnerId,
-                winnerName
-        );
+        return tournamentMapper.toResponse(repository.save(tournament));
     }
 
     public void registerTeam(Long tournamentId) {
-        User trainer = currentUserService.getCurrentUser();
+        var trainer = currentUserService.getCurrentUser();
 
         Tournament tournament = repository.findById(tournamentId)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + tournamentId));

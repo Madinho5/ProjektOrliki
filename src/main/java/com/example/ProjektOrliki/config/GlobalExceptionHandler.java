@@ -38,4 +38,10 @@
         public ResponseEntity<?> handleHttpMessageNotReadableException() {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Niepoprawny format danych wejściowych");
         }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<?> handleUnexpectedException() {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił nieoczekiwany błąd serwera");
+        }
+
     }

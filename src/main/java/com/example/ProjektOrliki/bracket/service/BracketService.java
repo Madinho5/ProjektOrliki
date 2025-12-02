@@ -156,5 +156,4 @@ public class BracketService {
 
         return new BracketDto(rounds);
     }
-
 }

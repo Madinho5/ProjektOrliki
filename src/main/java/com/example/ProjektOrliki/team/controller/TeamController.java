@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/teams")
 @RequiredArgsConstructor
 public class TeamController {
+
     private final TeamService teamService;
 
     @PostMapping
@@ -27,10 +28,11 @@ public class TeamController {
     }
 
     @PutMapping("/mine")
-    @ResponseStatus(HttpStatus.OK)
-    public TeamResponse updateMyTeam(@Valid @RequestBody TeamRequest request) {
-        return teamService.updateMyTeam(request);
+    public ResponseEntity<?> updateMyTeam(@Valid @RequestBody TeamRequest request) {
+        TeamResponse response = teamService.updateMyTeam(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
     @DeleteMapping("/mine")
     public ResponseEntity<?> deleteMyTeam() {
         teamService.deleteMyTeam();

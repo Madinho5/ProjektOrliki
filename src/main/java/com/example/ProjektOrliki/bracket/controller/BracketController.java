@@ -4,7 +4,7 @@ import com.example.ProjektOrliki.bracket.service.BracketService;
 import com.example.ProjektOrliki.match.dto.MatchDto;
 import com.example.ProjektOrliki.bracket.dto.BracketDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,14 +17,14 @@ public class BracketController {
     private final BracketService bracketService;
 
     @GetMapping("/{id}/matches")
-    @ResponseStatus(HttpStatus.OK)
-    public BracketDto getBracket(@PathVariable Long id) {
-        return bracketService.getBracket(id);
+    public ResponseEntity<?> getBracket(@PathVariable Long id) {
+        BracketDto dto = bracketService.getBracket(id);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/{id}/next-round")
-    @ResponseStatus(HttpStatus.OK)
-    public List<MatchDto> generateNextRound(@PathVariable Long id) {
-        return bracketService.generateNextRound(id);
+    public ResponseEntity<?> generateNextRound(@PathVariable Long id) {
+        List<MatchDto> matches = bracketService.generateNextRound(id);
+        return ResponseEntity.ok(matches);
     }
 }
