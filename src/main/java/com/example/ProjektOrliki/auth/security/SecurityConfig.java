@@ -23,28 +23,44 @@
         }
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
+
                             .requestMatchers(
                                     "/swagger-ui/**",
                                     "/swagger-ui.html",
                                     "/v3/api-docs/**",
-                                    "/v2/api-docs/**",
                                     "/swagger-resources/**",
-                                    "/webjars/**").permitAll()
+                                    "/webjars/**"
+                            ).permitAll()
 
-                            .requestMatchers(HttpMethod.POST,"/auth/register").permitAll()
-                            .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
 
+                            .requestMatchers(HttpMethod.POST, "/tournaments").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PUT, "/tournaments/*").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.DELETE, "/tournaments/*").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PATCH, "/tournaments/*/status").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/tournaments/import").hasRole("ADMIN")
+
+                            .requestMatchers(HttpMethod.GET, "/tournaments/**").authenticated()
                             .requestMatchers(HttpMethod.POST, "/tournaments/*/register").hasRole("TRAINER")
-                            .requestMatchers(HttpMethod.POST,"/tournaments/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.PUT,"/tournaments/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.DELETE,"/tournaments/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.GET,"/tournaments/**").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/tournaments/*/next-round").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.GET, "/tournaments/*/matches").authenticated()
 
-                            .requestMatchers(HttpMethod.POST, "/teams/**").hasRole("TRAINER")
+                            .requestMatchers("/teams/mine").hasRole("TRAINER")
+                            .requestMatchers(HttpMethod.POST, "/teams").hasRole("TRAINER")
+                            .requestMatchers(HttpMethod.PUT, "/teams/mine").hasRole("TRAINER")
+                            .requestMatchers(HttpMethod.DELETE, "/teams/mine").hasRole("TRAINER")
+
+                            .requestMatchers(HttpMethod.POST, "/players").hasRole("TRAINER")
+                            .requestMatchers(HttpMethod.PUT, "/players/*").hasRole("TRAINER")
+                            .requestMatchers(HttpMethod.DELETE, "/players/*").hasRole("TRAINER")
+
+                            .requestMatchers(HttpMethod.GET, "/trainer/me").hasRole("TRAINER")
+                            .requestMatchers(HttpMethod.PUT, "/trainer/me").hasRole("TRAINER")
+
                             .anyRequest().authenticated()
                     )
                     .userDetailsService(userDetailsService)

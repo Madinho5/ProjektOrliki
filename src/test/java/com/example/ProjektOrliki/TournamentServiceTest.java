@@ -95,11 +95,12 @@ public class TournamentServiceTest {
     @Test
     void given_existingTournament_when_delete_then_deleted() {
         when(tournamentRepository.existsById(1L)).thenReturn(true);
+        when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
         service.delete(1L);
 
         verify(matchRepository).deleteByTournamentId(1L);
-        verify(tournamentRepository).deleteById(1L);
+        verify(tournamentRepository).delete(tournament);
     }
 
     @Test
