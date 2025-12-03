@@ -1,9 +1,6 @@
 package com.example.ProjektOrliki.player.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -14,9 +11,17 @@ import java.io.Serializable;
 @Value
 public class PlayerRequest implements Serializable {
 
+    @Pattern(
+            regexp = "^[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]+$",
+            message = "Imię może zawierać tylko litery."
+    )
     @NotBlank(message = "Imię nie może być puste.")
     String firstName;
 
+    @Pattern(
+            regexp = "^[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]+$",
+            message = "Nazwisko może zawierać tylko litery."
+    )
     @NotBlank(message = "Nazwisko nie może być puste.")
     String lastName;
 
