@@ -38,7 +38,7 @@ public class TournamentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody TournamentRequest request) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TournamentRequest request) {
         TournamentResponse response = tournamentService.update(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -67,8 +67,9 @@ public class TournamentController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Drużyna zgłoszona do turnieju");
     }
 
+    @CrossOrigin(origins = "*")
     @PostMapping(value = "/import", consumes = "multipart/form-data")
-    public ResponseEntity<?> importXml(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<?> importXml(@RequestParam MultipartFile file) throws IOException {
         ImportResultDto result = tournamentImportService.importXml(file.getInputStream());
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

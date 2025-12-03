@@ -2,9 +2,9 @@ package com.example.ProjektOrliki.team.model;
 
 import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.player.model.Player;
+import com.example.ProjektOrliki.tournament.model.Tournament;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
 
 import java.util.List;
 
@@ -27,6 +27,13 @@ public class Team {
     @JoinColumn(name = "trainer_id", nullable = false)
     private User trainer;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(
+            mappedBy = "team",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<Player> players;
+
+    @ManyToMany(mappedBy = "teams")
+    private List<Tournament> tournaments;
 }

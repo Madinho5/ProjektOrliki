@@ -68,7 +68,7 @@ public class TournamentService {
                 .toList();
     }
 
-    public TournamentResponse update(Long id, TournamentRequest request) {
+    public TournamentResponse update(Long id, @Valid TournamentRequest request) {
         Tournament tournament = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
 
@@ -93,12 +93,19 @@ public class TournamentService {
 
     @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Nie znaleziono turnieju o id: " + id);
+        Tournament tournament = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju o id: " + id));
+
+        if (tournament.getStatus() == TournamentStatus.IN_PROGRESS) {
+            throw new IllegalArgumentException("Turniej nie może zostać usunięty na tym etapie.");
         }
 
         matchRepository.deleteByTournamentId(id);
-        repository.deleteById(id);
+
+        tournament.getTeams().clear();
+        repository.save(tournament);
+
+        repository.delete(tournament);
     }
 
     public TournamentResponse updateStatus(Long id, TournamentStatus newStatus) {

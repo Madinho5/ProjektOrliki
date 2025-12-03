@@ -1,6 +1,8 @@
     package com.example.ProjektOrliki.config;
 
     import com.example.ProjektOrliki.auth.exception.UserAlreadyExistsException;
+    import jakarta.validation.ConstraintViolation;
+    import jakarta.validation.ConstraintViolationException;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,6 +11,7 @@
     import org.springframework.http.converter.HttpMessageNotReadableException;
 
     import java.util.Objects;
+    import java.util.stream.Collectors;
 
     @RestControllerAdvice
     public class GlobalExceptionHandler {
@@ -44,4 +47,14 @@
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił nieoczekiwany błąd serwera");
         }
 
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<?> handleConstraintViolation(ConstraintViolationException ex) {
+            var errors = ex.getConstraintViolations().stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(errors);
+        }
     }

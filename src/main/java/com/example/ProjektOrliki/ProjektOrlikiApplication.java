@@ -8,6 +8,7 @@ import com.example.ProjektOrliki.player.model.PlayerPosition;
 import com.example.ProjektOrliki.player.repository.PlayerRepository;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,8 +43,9 @@ public class ProjektOrlikiApplication {
         };
     }
 
+    @Transactional
     @Bean
-    public CommandLineRunner seed(
+    public CommandLineRunner seedPlayers(
             UserRepository userRepository,
             TeamRepository teamRepository,
             PlayerRepository playerRepository,

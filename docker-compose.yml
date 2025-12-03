@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:16
     container_name: orliki-postgres
-    restart: always
+    restart: no
     environment:
       POSTGRES_DB: ProjektOrliki
       POSTGRES_USER: root
