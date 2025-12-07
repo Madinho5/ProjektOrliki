@@ -42,7 +42,6 @@ class TournamentControllerIntegrationTest {
 
     @Test
     void givenTournament_whenGetTournamentById_thenStatus200() throws Exception {
-        // given
         Tournament saved = createTestTournament(
                 "Winter Cup",
                 LocalDate.of(2025, 1, 10),
@@ -50,7 +49,6 @@ class TournamentControllerIntegrationTest {
                 TournamentStatus.CREATED
         );
 
-        // when && then
         mockMvc.perform(get("/tournaments/" + saved.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -61,14 +59,12 @@ class TournamentControllerIntegrationTest {
 
     @Test
     void whenValidInput_thenCreateTournament() throws Exception {
-        // given
         Tournament t = Tournament.builder()
                 .name("Summer League")
                 .startDate(LocalDate.of(2025, 12, 12))
                 .teamCount(8)
                 .build();
 
-        // when
         mockMvc.perform(post("/tournaments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(t)))
@@ -77,7 +73,6 @@ class TournamentControllerIntegrationTest {
                 .andExpect(jsonPath("$.status").value("CREATED"))
                 .andExpect(jsonPath("$.teamCount").value(8));
 
-        // then
         List<Tournament> found = tournamentRepository.findAll();
         assertThat(found).extracting(Tournament::getName)
                 .containsOnly("Summer League");

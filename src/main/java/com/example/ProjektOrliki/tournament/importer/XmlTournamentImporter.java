@@ -2,10 +2,8 @@ package com.example.ProjektOrliki.tournament.importer;
 
 import com.example.ProjektOrliki.tournament.dto.ImportResultDto;
 import com.example.ProjektOrliki.tournament.dto.TournamentRequest;
-import com.example.ProjektOrliki.tournament.service.api.TournamentCreator;
+import com.example.ProjektOrliki.tournament.service.api.TournamentImportHandler;
 import com.example.ProjektOrliki.tournament.service.api.TournamentImporter;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.xml.bind.JAXBContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,13 +12,12 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class XmlTournamentImporter implements TournamentImporter {
 
-    private final TournamentCreator tournamentCreator;
+    private final TournamentImportHandler handler;
 
     @Override
     public String supportedContentType() {
@@ -39,22 +36,16 @@ public class XmlTournamentImporter implements TournamentImporter {
 
             for (var x : data.getTournaments()) {
                 try {
-                    TournamentRequest request = new TournamentRequest(
+                    handler.handle(new TournamentRequest(
                             x.getName(),
                             LocalDate.parse(x.getStartDate()),
                             x.getTeamCount()
-                    );
-                    tournamentCreator.create(request);
+                    ));
                     imported++;
-                } catch (ConstraintViolationException e) {
+
+                } catch (Exception ex) {
                     skipped++;
-                    String msg = e.getConstraintViolations().stream()
-                            .map(ConstraintViolation::getMessage)
-                            .collect(Collectors.joining(", "));
-                    errors.add(new ImportResultDto.ImportError(x.getName(), msg));
-                } catch (Exception e) {
-                    skipped++;
-                    errors.add(new ImportResultDto.ImportError(x.getName(), e.getMessage()));
+                    errors.add(new ImportResultDto.ImportError(x.getName(), ex.getMessage()));
                 }
             }
 
