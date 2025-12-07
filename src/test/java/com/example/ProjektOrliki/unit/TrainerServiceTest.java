@@ -1,4 +1,4 @@
-package com.example.ProjektOrliki;
+package com.example.ProjektOrliki.unit;
 
 import com.example.ProjektOrliki.auth.model.Role;
 import com.example.ProjektOrliki.auth.model.User;
