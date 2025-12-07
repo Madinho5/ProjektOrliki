@@ -22,7 +22,7 @@ public record TrainerUpdateRequest(
         String lastName,
 
         @Pattern(
-                regexp = "^$|^[0-9]{9}$",
+                regexp = "^[0-9]{9}$",
                 message = "Telefon musi mieć 9 cyfr"
         )
         String phoneNumber

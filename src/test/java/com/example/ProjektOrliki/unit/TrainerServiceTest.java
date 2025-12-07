@@ -3,6 +3,7 @@ package com.example.ProjektOrliki.unit;
 import com.example.ProjektOrliki.auth.model.Role;
 import com.example.ProjektOrliki.auth.model.User;
 import com.example.ProjektOrliki.auth.repository.UserRepository;
+import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.trainer.dto.TrainerResponse;
 import com.example.ProjektOrliki.trainer.dto.TrainerUpdateRequest;
 import com.example.ProjektOrliki.trainer.service.TrainerService;
@@ -11,31 +12,34 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class TrainerServiceTest {
     private TrainerService service;
     private UserRepository userRepository;
-
+    private CurrentUserService currentUserService;
     private User trainer;
 
     @BeforeEach
     public void setUp() {
+
         userRepository = mock(UserRepository.class);
-        service = new TrainerService(userRepository);
+        currentUserService = mock(CurrentUserService.class);
 
         trainer = new User();
         trainer.setRole(Role.TRAINER);
         trainer.setFirstName("Adam");
         trainer.setLastName("Nowak");
         trainer.setPhoneNumber("123456789");
+
+        when(currentUserService.getCurrentUser()).thenReturn(trainer);
+        service = new TrainerService(userRepository, currentUserService);
     }
 
     @Test
     void given_trainerRole_when_getTrainerProfile_then_returnProfile(){
 
-        TrainerResponse response = service.getTrainerProfile(trainer);
+        TrainerResponse response = service.getMyProfile();
 
         assertThat(response.firstName()).isEqualTo("Adam");
         assertThat(response.lastName()).isEqualTo("Nowak");
@@ -47,7 +51,7 @@ public class TrainerServiceTest {
 
         trainer.setRole(Role.ADMIN);
 
-        assertThatThrownBy(() -> service.getTrainerProfile(trainer)).isInstanceOf(IllegalArgumentException.class).hasMessage("Użytkownik nie jest trenerem.");
+        assertThatThrownBy(() -> service.getMyProfile()).isInstanceOf(IllegalArgumentException.class).hasMessage("Użytkownik nie jest trenerem.");
     }
 
     @Test
@@ -55,7 +59,7 @@ public class TrainerServiceTest {
 
         TrainerUpdateRequest request = new TrainerUpdateRequest("Jan", "Kowalski", "987654321");
 
-        TrainerResponse response = service.updateTrainerProfile(trainer, request);
+        TrainerResponse response = service.updateMyProfile(request);
 
         assertThat(response.firstName()).isEqualTo("Jan");
         assertThat(response.lastName()).isEqualTo("Kowalski");
@@ -69,7 +73,7 @@ public class TrainerServiceTest {
 
         TrainerUpdateRequest req = new TrainerUpdateRequest(null, "Kowal", null);
 
-        TrainerResponse response = service.updateTrainerProfile(trainer, req);
+        TrainerResponse response = service.updateMyProfile(req);
 
         assertThat(response.firstName()).isEqualTo("Adam");
         assertThat(response.lastName()).isEqualTo("Kowal");

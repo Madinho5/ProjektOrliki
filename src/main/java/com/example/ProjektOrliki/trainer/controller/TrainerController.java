@@ -1,9 +1,9 @@
 package com.example.ProjektOrliki.trainer.controller;
 
-import com.example.ProjektOrliki.auth.model.User;
-import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.trainer.dto.TrainerUpdateRequest;
-import com.example.ProjektOrliki.trainer.service.TrainerService;
+import com.example.ProjektOrliki.trainer.service.api.TrainerModifier;
+import com.example.ProjektOrliki.trainer.service.api.TrainerReader;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,18 +13,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TrainerController {
 
-    private final TrainerService trainerService;
-    private final CurrentUserService currentUserService;
+    private final TrainerReader trainerReader;
+    private final TrainerModifier trainerModifier;
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile() {
-        User trainer = currentUserService.getCurrentUser();
-        return ResponseEntity.ok(trainerService.getTrainerProfile(trainer));
+        return ResponseEntity.ok(trainerReader.getMyProfile());
     }
 
     @PutMapping("/me")
-    public ResponseEntity<?> updateMyProfile(@RequestBody TrainerUpdateRequest request) {
-        User trainer = currentUserService.getCurrentUser();
-        return ResponseEntity.ok(trainerService.updateTrainerProfile(trainer, request));
+    public ResponseEntity<?> updateMyProfile(@Valid @RequestBody TrainerUpdateRequest request) {
+        return ResponseEntity.ok(trainerModifier.updateMyProfile(request));
     }
 }
