@@ -3,6 +3,9 @@ package com.example.ProjektOrliki.player.controller;
 import com.example.ProjektOrliki.player.dto.PlayerRequest;
 import com.example.ProjektOrliki.player.dto.PlayerResponse;
 import com.example.ProjektOrliki.player.service.PlayerService;
+import com.example.ProjektOrliki.player.service.api.PlayerCreator;
+import com.example.ProjektOrliki.player.service.api.PlayerDeleter;
+import com.example.ProjektOrliki.player.service.api.PlayerModifier;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,23 +18,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/players")
 public class PlayerController {
 
-    private final PlayerService playerService;
+    private final PlayerCreator creator;
+    private final PlayerModifier modifier;
+    private final PlayerDeleter deleter;
 
     @PostMapping
     public ResponseEntity<?> createPlayer(@Valid @RequestBody PlayerRequest request) {
-        PlayerResponse response = playerService.createPlayer(request);
+        PlayerResponse response = creator.createPlayer(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePlayer(@PathVariable Long id, @Valid @RequestBody PlayerRequest request) {
-        PlayerResponse response = playerService.updatePlayer(id, request);
+        PlayerResponse response = modifier.updatePlayer(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlayer(@PathVariable Long id) {
-        playerService.deletePlayer(id);
+        deleter.deletePlayer(id);
         return ResponseEntity.status(HttpStatus.OK).body("Usunięto zawodnika o id: " + id);
     }
 
