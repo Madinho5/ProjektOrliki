@@ -1,4 +1,4 @@
-package com.example.ProjektOrliki;
+package com.example.ProjektOrliki.integration;
 
 import com.example.ProjektOrliki.tournament.model.Tournament;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;

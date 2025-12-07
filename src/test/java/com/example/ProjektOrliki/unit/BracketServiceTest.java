@@ -1,4 +1,4 @@
-package com.example.ProjektOrliki;
+package com.example.ProjektOrliki.unit;
 
 import com.example.ProjektOrliki.bracket.dto.BracketDto;
 import com.example.ProjektOrliki.bracket.service.BracketService;
