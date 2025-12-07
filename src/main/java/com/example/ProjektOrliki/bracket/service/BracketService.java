@@ -1,5 +1,8 @@
 package com.example.ProjektOrliki.bracket.service;
 
+import com.example.ProjektOrliki.bracket.service.api.BracketGenerator;
+import com.example.ProjektOrliki.bracket.service.api.BracketRandomizer;
+import com.example.ProjektOrliki.bracket.service.api.BracketReader;
 import com.example.ProjektOrliki.match.dto.MatchDto;
 import com.example.ProjektOrliki.match.model.Match;
 import com.example.ProjektOrliki.match.repository.MatchRepository;
@@ -17,12 +20,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class BracketService {
+public class BracketService implements BracketGenerator, BracketReader {
 
     private final TournamentRepository tournamentRepository;
     private final MatchRepository matchRepository;
-    private final Random random = new Random();
+    private final BracketRandomizer randomizer;
 
+    @Override
     public List<MatchDto> generateNextRound(Long tournamentId) {
 
         Tournament tournament = tournamentRepository.findById(tournamentId)
@@ -74,8 +78,8 @@ public class BracketService {
             Team a = teams.get(i);
             Team b = teams.get(i + 1);
 
-            int scoreA = random.nextInt(6);
-            int scoreB = random.nextInt(6);
+            int scoreA = randomizer.generateScore(a);
+            int scoreB = randomizer.generateScore(b);
 
             Team winner = (scoreA >= scoreB) ? a : b;
 
@@ -120,6 +124,7 @@ public class BracketService {
         return dtos;
     }
 
+    @Override
     public BracketDto getBracket(Long tournamentId) {
         Tournament t = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju: " + tournamentId));

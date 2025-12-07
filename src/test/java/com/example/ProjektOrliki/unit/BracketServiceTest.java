@@ -2,6 +2,7 @@ package com.example.ProjektOrliki.unit;
 
 import com.example.ProjektOrliki.bracket.dto.BracketDto;
 import com.example.ProjektOrliki.bracket.service.BracketService;
+import com.example.ProjektOrliki.bracket.service.api.BracketRandomizer;
 import com.example.ProjektOrliki.match.dto.MatchDto;
 import com.example.ProjektOrliki.match.model.Match;
 import com.example.ProjektOrliki.match.repository.MatchRepository;
@@ -23,6 +24,7 @@ public class BracketServiceTest {
     private BracketService service;
     private TournamentRepository tournamentRepository;
     private MatchRepository matchRepository;
+    private BracketRandomizer randomizer;
 
     private Tournament tournament;
     private Team teamA;
@@ -32,7 +34,9 @@ public class BracketServiceTest {
     public void setUp(){
         tournamentRepository = mock(TournamentRepository.class);
         matchRepository = mock(MatchRepository.class);
-        service = new BracketService(tournamentRepository,matchRepository);
+        randomizer = mock(BracketRandomizer.class);
+
+        service = new BracketService(tournamentRepository,matchRepository, randomizer);
 
         teamA = new Team();
         teamA.setId(1L);
@@ -53,11 +57,15 @@ public class BracketServiceTest {
 
     @Test
     void given_validTournament_when_generateRound1_then_matchesAreCreated() {
+        when(randomizer.generateScore(any()))
+                .thenReturn(3, 1);
+
         List<MatchDto> result = service.generateNextRound(10L);
 
         assertThat(result).hasSize(1);
         verify(matchRepository, times(1)).save(any(Match.class));
         verify(tournamentRepository, times(1)).save(tournament);
+        verify(randomizer, times(2)).generateScore(any());
     }
 
     @Test

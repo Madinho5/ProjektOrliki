@@ -8,6 +8,9 @@ import com.example.ProjektOrliki.player.mapper.PlayerMapper;
 import com.example.ProjektOrliki.player.model.Player;
 import com.example.ProjektOrliki.player.model.PlayerPosition;
 import com.example.ProjektOrliki.player.repository.PlayerRepository;
+import com.example.ProjektOrliki.player.service.api.PlayerCreator;
+import com.example.ProjektOrliki.player.service.api.PlayerDeleter;
+import com.example.ProjektOrliki.player.service.api.PlayerModifier;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PlayerService {
+public class PlayerService implements PlayerCreator, PlayerModifier, PlayerDeleter {
 
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
@@ -35,6 +38,7 @@ public class PlayerService {
                 .orElseThrow(() -> new IllegalStateException("Nie masz przypisanej drużyny."));
     }
 
+    @Override
     public PlayerResponse createPlayer(PlayerRequest request) {
         User trainer = currentUserService.getCurrentUser();
 
@@ -57,6 +61,7 @@ public class PlayerService {
         return playerMapper.toResponse(player);
     }
 
+    @Override
     public PlayerResponse updatePlayer(Long id, PlayerRequest request) {
 
         Player player = playerRepository.findById(id)
@@ -75,6 +80,7 @@ public class PlayerService {
         return playerMapper.toResponse(player);
     }
 
+    @Override
     public void deletePlayer(Long id) {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono zawodnika."));
