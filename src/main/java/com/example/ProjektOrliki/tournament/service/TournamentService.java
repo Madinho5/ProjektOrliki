@@ -12,6 +12,7 @@ import com.example.ProjektOrliki.tournament.mapper.TournamentMapper;
 import com.example.ProjektOrliki.tournament.model.Tournament;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import com.example.ProjektOrliki.tournament.repository.TournamentRepository;
+import com.example.ProjektOrliki.tournament.service.api.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class TournamentService {
+public class TournamentService implements
+        TournamentCreator,
+        TournamentReader,
+        TournamentModifier,
+        TournamentLifecycle,
+        TournamentRegistration {
+
     private final TournamentRepository repository;
     private final TeamRepository teamRepository;
     private final CurrentUserService currentUserService;
