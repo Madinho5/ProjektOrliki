@@ -6,7 +6,6 @@ import com.example.ProjektOrliki.auth.exception.UserAlreadyExistsException;
 import com.example.ProjektOrliki.auth.repository.UserRepository;
 import com.example.ProjektOrliki.auth.model.Role;
 import com.example.ProjektOrliki.auth.model.User;
-import com.example.ProjektOrliki.trainer.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

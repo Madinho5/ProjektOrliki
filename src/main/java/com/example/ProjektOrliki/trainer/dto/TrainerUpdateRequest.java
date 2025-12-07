@@ -1,6 +1,5 @@
 package com.example.ProjektOrliki.trainer.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;

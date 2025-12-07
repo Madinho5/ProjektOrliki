@@ -1,6 +1,5 @@
 package com.example.ProjektOrliki.bracket.controller;
 
-import com.example.ProjektOrliki.bracket.service.BracketService;
 import com.example.ProjektOrliki.bracket.service.api.BracketGenerator;
 import com.example.ProjektOrliki.bracket.service.api.BracketReader;
 import com.example.ProjektOrliki.match.dto.MatchDto;

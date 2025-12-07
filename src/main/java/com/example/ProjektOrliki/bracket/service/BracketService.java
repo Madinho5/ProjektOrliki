@@ -126,9 +126,6 @@ public class BracketService implements BracketGenerator, BracketReader {
 
     @Override
     public BracketDto getBracket(Long tournamentId) {
-        Tournament t = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono turnieju: " + tournamentId));
-
         List<Match> matches = matchRepository.findByTournamentId(tournamentId);
 
         Map<Integer, List<MatchDto>> grouped =

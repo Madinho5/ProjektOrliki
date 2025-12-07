@@ -2,7 +2,6 @@ package com.example.ProjektOrliki.player.controller;
 
 import com.example.ProjektOrliki.player.dto.PlayerRequest;
 import com.example.ProjektOrliki.player.dto.PlayerResponse;
-import com.example.ProjektOrliki.player.service.PlayerService;
 import com.example.ProjektOrliki.player.service.api.PlayerCreator;
 import com.example.ProjektOrliki.player.service.api.PlayerDeleter;
 import com.example.ProjektOrliki.player.service.api.PlayerModifier;
