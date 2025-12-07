@@ -1,20 +1,27 @@
 package com.example.ProjektOrliki.trainer.service;
 import com.example.ProjektOrliki.auth.model.Role;
 import com.example.ProjektOrliki.auth.model.User;
+import com.example.ProjektOrliki.auth.service.CurrentUserService;
 import com.example.ProjektOrliki.trainer.dto.TrainerResponse;
 import com.example.ProjektOrliki.trainer.dto.TrainerUpdateRequest;
 import com.example.ProjektOrliki.auth.repository.UserRepository;
 
+import com.example.ProjektOrliki.trainer.service.api.TrainerModifier;
+import com.example.ProjektOrliki.trainer.service.api.TrainerReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TrainerService {
+public class TrainerService implements TrainerReader, TrainerModifier {
 
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
-    public TrainerResponse getTrainerProfile(User trainer) {
+    @Override
+    public TrainerResponse getMyProfile() {
+        User trainer = currentUserService.getCurrentUser();
+
         if (trainer.getRole() != Role.TRAINER) {
             throw new IllegalArgumentException("Użytkownik nie jest trenerem.");
         }
@@ -26,7 +33,10 @@ public class TrainerService {
         );
     }
 
-    public TrainerResponse updateTrainerProfile(User trainer, TrainerUpdateRequest request) {
+    @Override
+    public TrainerResponse updateMyProfile(TrainerUpdateRequest request) {
+        User trainer = currentUserService.getCurrentUser();
+
         if (trainer.getRole() != Role.TRAINER) {
             throw new IllegalArgumentException("Użytkownik nie jest trenerem.");
         }

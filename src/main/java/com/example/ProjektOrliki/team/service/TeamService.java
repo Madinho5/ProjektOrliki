@@ -8,6 +8,10 @@ import com.example.ProjektOrliki.team.mapper.TeamMapper;
 import com.example.ProjektOrliki.team.model.Team;
 import com.example.ProjektOrliki.team.dto.TeamResponse;
 import com.example.ProjektOrliki.team.repository.TeamRepository;
+import com.example.ProjektOrliki.team.service.api.TeamCreator;
+import com.example.ProjektOrliki.team.service.api.TeamModifier;
+import com.example.ProjektOrliki.team.service.api.TeamReader;
+import com.example.ProjektOrliki.team.service.api.TeamRemover;
 import com.example.ProjektOrliki.tournament.model.TournamentStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +19,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TeamService {
+public class TeamService implements
+        TeamCreator,
+        TeamReader,
+        TeamModifier,
+        TeamRemover {
+
     private final TeamRepository teamRepository;
     private final CurrentUserService currentUserService;
     private final TeamMapper teamMapper;
 
-    public TeamResponse createTeam(TeamRequest request) {
+    @Override
+    public TeamResponse create(TeamRequest request) {
         User trainer = currentUserService.getCurrentUser();
 
         if (teamRepository.existsByTrainer(trainer)) {
@@ -38,6 +48,7 @@ public class TeamService {
         return teamMapper.toResponse(teamRepository.save(team));
     }
 
+    @Override
     public TeamDetailsResponse getMyTeam() {
         User trainer = currentUserService.getCurrentUser();
 
@@ -46,6 +57,7 @@ public class TeamService {
         return teamMapper.toDetailsResponse(team);
     }
 
+    @Override
     public TeamResponse updateMyTeam(TeamRequest request) {
         User trainer = currentUserService.getCurrentUser();
 
@@ -63,6 +75,7 @@ public class TeamService {
         return teamMapper.toResponse(team);
     }
 
+    @Override
     @Transactional
     public void deleteMyTeam() {
         User trainer = currentUserService.getCurrentUser();

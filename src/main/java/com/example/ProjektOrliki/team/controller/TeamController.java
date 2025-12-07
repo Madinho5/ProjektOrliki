@@ -1,8 +1,10 @@
 package com.example.ProjektOrliki.team.controller;
 
 import com.example.ProjektOrliki.team.dto.TeamRequest;
-import com.example.ProjektOrliki.team.dto.TeamResponse;
-import com.example.ProjektOrliki.team.service.TeamService;
+import com.example.ProjektOrliki.team.service.api.TeamCreator;
+import com.example.ProjektOrliki.team.service.api.TeamModifier;
+import com.example.ProjektOrliki.team.service.api.TeamReader;
+import com.example.ProjektOrliki.team.service.api.TeamRemover;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,28 +16,29 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TeamController {
 
-    private final TeamService teamService;
+    private final TeamCreator teamCreator;
+    private final TeamReader teamReader;
+    private final TeamModifier teamModifier;
+    private final TeamRemover teamRemover;
 
     @PostMapping
     public ResponseEntity<?> createTeam(@Valid @RequestBody TeamRequest request) {
-        TeamResponse response = teamService.createTeam(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamCreator.create(request));
     }
 
     @GetMapping("/mine")
     public ResponseEntity<?> getMyTeam() {
-        return ResponseEntity.ok(teamService.getMyTeam());
+        return ResponseEntity.ok(teamReader.getMyTeam());
     }
 
     @PutMapping("/mine")
     public ResponseEntity<?> updateMyTeam(@Valid @RequestBody TeamRequest request) {
-        TeamResponse response = teamService.updateMyTeam(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(teamModifier.updateMyTeam(request));
     }
 
     @DeleteMapping("/mine")
     public ResponseEntity<?> deleteMyTeam() {
-        teamService.deleteMyTeam();
+        teamRemover.deleteMyTeam();
         return ResponseEntity.status(HttpStatus.OK).body("Usunięto drużynę");
     }
 }
