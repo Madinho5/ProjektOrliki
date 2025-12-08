@@ -9,4 +9,5 @@ import org.springframework.validation.annotation.Validated;
 public interface TournamentModifier {
     TournamentResponse update(Long id, @Valid TournamentRequest request);
     void delete(Long id);
+    void test(Long id);
 }
