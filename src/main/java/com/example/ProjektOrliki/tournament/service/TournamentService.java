@@ -168,4 +168,8 @@ public class TournamentService implements
 
         repository.save(tournament);
     }
+
+    @Override
+    public void test(Long id) {
+    }
 }
