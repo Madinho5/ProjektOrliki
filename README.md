@@ -1,11 +1,11 @@
 
-# Projekt Orliki – Dokumentacja API
+# Projekt Orliki - API Documentation
 
-Aplikacja REST API stworzona w Spring Boot, umożliwiająca symulowanie turniejów piłkarskich rozgrywanych na orlikach. System wspiera role ADMIN oraz TRAINER, rejestrację, zarządzanie drużynami, zawodnikami, tworzy mecze i drabinkę turnieju, umożliwia import listy turniejów z XML.
+A REST API application built with Spring Boot for simulating football tournaments played on local football fields. The system supports ADMIN and TRAINER roles, registration, team and player management, match and tournament bracket generation, and tournament list import from XML.
 
 ---
 
-## Technologie
+## Technologies
 
 - Java 21+
 - Spring Boot 4
@@ -14,219 +14,219 @@ Aplikacja REST API stworzona w Spring Boot, umożliwiająca symulowanie turniej�
 - Hibernate
 - PostgreSQL + Docker Compose
 - Spring Validation
-- JAXB (import XML)
+- JAXB (XML import)
 - Lombok
 
 ---
 
-## Uruchomienie
+## Running the Application
 
-1. Baza danych tworzona za pomocą **docker-compose-support**
+1. The database is started with **docker-compose**.
 2. Swagger UI: http://localhost:8080/swagger-ui/index.html
 
 ---
 
-## Przy starcie aplikacji tworzone są:
+## Data Seeded on Startup
 
-- **1 użytkownik o roli admin**
+- **1 admin user**
   - login: `admin@gmail.com`
-  - hasło: `admin`
+  - password: `admin`
 
-- **8 trenerów i 8 drużyn**
-  - loginy: `trainer1` … `trainer8`
-  - hasło: `Password123!`
-  - Każdy trener dostaje drużynę z 7 zawodnikami (1 bramkarz, reszta DEF).
-
----
-
-## Główne encje
-
-- User  
-- Team  
-- Player  
-- Tournament  
-- Match  
+- **8 trainers and 8 teams**
+  - logins: `trainer1` ... `trainer8`
+  - password: `Password123!`
+  - Each trainer gets one team with 7 players (1 goalkeeper, the rest DEF).
 
 ---
 
-## Autoryzacja i dostęp
+## Main Entities
 
-**Mechanizm:** HTTP Basic Auth
+- User
+- Team
+- Player
+- Tournament
+- Match
 
-### Dostęp według ról
+---
 
-| Akcja | Role |
+## Authorization and Access
+
+**Mechanism:** HTTP Basic Auth
+
+### Role-Based Access
+
+| Action | Roles |
 |-------|------|
-| Rejestracja | TRAINER |
-| Logowanie | TRAINER, ADMIN |
-| Zarządzanie swoją drużyną | TRAINER |
-| Zarządzanie zawodnikami | TRAINER |
-| Rejestracja drużyny do turnieju | TRAINER |
-| Zarządzanie turniejami | ADMIN |
-| Generowanie rund turnieju | ADMIN |
-| Podgląd turniejów | TRAINER, ADMIN |
+| Registration | TRAINER |
+| Login | TRAINER, ADMIN |
+| Manage own team | TRAINER |
+| Manage players | TRAINER |
+| Register team to tournament | TRAINER |
+| Manage tournaments | ADMIN |
+| Generate tournament rounds | ADMIN |
+| View tournaments | TRAINER, ADMIN |
 
 ---
 
-## Obsługa błędów
+## Error Handling
 
-Globalny handler obsługuje:
+Global exception handler covers:
 
-- `UserAlreadyExistsException` — **409** — Próba rejestracji istniejącego użytkownika  
-- `IllegalArgumentException` — **400** — Nieprawidłowe dane wejściowe  
-- `MethodArgumentNotValidException` — **400** — Walidacja DTO nie przeszła  
-- `IllegalStateException` — **400** — Operacja niedozwolona w danym stanie  
-- `HttpMessageNotReadableException` — **400** — Zły format JSON  
-- `ConstraintViolationException` — **400** — Walidacja parametrów / XML import  
-- `Exception` — **500** — Każdy inny błąd  
+- `UserAlreadyExistsException` - **409** - Attempt to register an existing user
+- `IllegalArgumentException` - **400** - Invalid input data
+- `MethodArgumentNotValidException` - **400** - DTO validation failed
+- `IllegalStateException` - **400** - Operation not allowed in current state
+- `HttpMessageNotReadableException` - **400** - Invalid JSON format
+- `ConstraintViolationException` - **400** - Parameter validation / XML import validation
+- `Exception` - **500** - Any other error
 
-**Komunikaty błędów zwracane są jako prosty tekst.**
+**Error messages are returned as plain text.**
 
 ---
 
-# Endpointy API
+# API Endpoints
 
 ---
 
 # AUTH
 
-### POST /auth/register  
-Rejestracja trenera.
+### POST /auth/register
+Registers a trainer.
 
-**Walidacja:**
-- imię i nazwisko — tylko litery
-- hasło — min. 8 znaków, cyfra, wielka i mała litera, znak specjalny
-- unikalny username
+**Validation:**
+- first and last name - letters only
+- password - min. 8 characters, one digit, uppercase and lowercase letter, special character
+- unique username
 
-### POST /auth/login  
-Sprawdza poprawność loginu i hasła.
+### POST /auth/login
+Verifies username and password.
 
 ---
 
 # TRAINER
 
-### GET /trainer/me  
-Zwraca profil trenera.
+### GET /trainer/me
+Returns trainer profile.
 
-### PUT /trainer/me  
-Aktualizacja danych.
+### PUT /trainer/me
+Updates trainer data.
 
-**Walidacja:**
-- imię/nazwisko → tylko litery  
-- numer telefonu → 9 cyfr
+**Validation:**
+- first name/last name -> letters only
+- phone number -> 9 digits
 
 ---
 
 # TEAM
 
-### POST /teams  
-Tworzenie drużyny.
+### POST /teams
+Creates a team.
 
-**Walidacja:**
-- trener może mieć tylko jedną drużynę  
-- nazwa drużyny musi być unikalna  
+**Validation:**
+- a trainer can have only one team
+- team name must be unique
 
-### GET /teams/mine  
-Zwraca drużynę aktualnie zalogowanego trenera.
+### GET /teams/mine
+Returns the currently logged-in trainer's team.
 
-### PUT /teams/mine  
-Zmiana nazwy drużyny.
+### PUT /teams/mine
+Changes team name.
 
-**Walidacja:** unikalność nazwy
+**Validation:** unique team name
 
-### DELETE /teams/mine  
-Usunięcie drużyny.
+### DELETE /teams/mine
+Deletes a team.
 
-**Walidacja:**  
-- nie można usunąć drużyny, jeśli bierze udział w turnieju w statusie **IN_PROGRESS** lub **FINISHED**
+**Validation:**
+- team cannot be deleted if it participates in a tournament with status **IN_PROGRESS** or **FINISHED**
 
 ---
 
 # PLAYER
 
-**Warunek:** każdy zawodnik należy do drużyny trenera, który go tworzy.
+**Condition:** each player must belong to the team of the trainer who creates them.
 
-### POST /players  
-Tworzenie zawodnika.
+### POST /players
+Creates a player.
 
-**Walidacja:**
-- imię/nazwisko — niepuste, tylko litery  
-- wiek — zakres **5–80** lat  
-- max **20** zawodników w drużynie  
-- pozycja: **GK / DEF / MID / ST**
+**Validation:**
+- first/last name - non-empty, letters only
+- age - range **5-80**
+- max **20** players per team
+- position: **GK / DEF / MID / ST**
 
-### PUT /players/{id}  
-Edycja zawodnika.
+### PUT /players/{id}
+Edits a player.
 
-**Walidacja:**
-- takie same zasady jak przy tworzeniu  
-- zawodnik musi należeć do drużyny trenera  
+**Validation:**
+- same rules as for create
+- player must belong to trainer's team
 
-### DELETE /players/{id}  
-Usunięcie zawodnika.
+### DELETE /players/{id}
+Deletes a player.
 
-**Walidacja:** zawodnik musi należeć do drużyny trenera  
+**Validation:** player must belong to trainer's team
 
 ---
 
 # TOURNAMENT
 
-### POST /tournaments (ADMIN)  
-Tworzenie turnieju.
+### POST /tournaments (ADMIN)
+Creates a tournament.
 
-**Walidacja:**
-- unikalna nazwa  
-- data nie może być przeszła  
-- liczba drużyn: **2 / 4 / 8 / 16**  
-- status początkowy: **CREATED**
+**Validation:**
+- unique name
+- date cannot be in the past
+- team count: **2 / 4 / 8 / 16**
+- initial status: **CREATED**
 
-### GET /tournaments/{id}  
-Zwraca:
-- listę drużyn  
-- status  
-- winnerName i winnerId  
-- startDate  
-- teamCount  
+### GET /tournaments/{id}
+Returns:
+- team list
+- status
+- winnerName and winnerId
+- startDate
+- teamCount
 
-### PUT /tournaments/{id}  
-**Walidacja:**
-- edycja tylko przy statusach: **CREATED**, **REGISTRATION_OPENED**  
-- teamCount ≥ liczba zapisanych drużyn  
-- data nie może być przeszła  
+### PUT /tournaments/{id}
+**Validation:**
+- editing allowed only for statuses: **CREATED**, **REGISTRATION_OPENED**
+- teamCount >= number of already registered teams
+- date cannot be in the past
 
-### DELETE /tournaments/{id} (ADMIN)  
-**Walidacja:**
-- nie można usuwać w trakcie **IN_PROGRESS**  
-- usuwa wszystkie mecze danego turnieju  
+### DELETE /tournaments/{id} (ADMIN)
+**Validation:**
+- cannot delete when status is **IN_PROGRESS**
+- deletes all matches of the tournament
 
-### PATCH /tournaments/{id}/status  
-Zmienia status turnieju:  
+### PATCH /tournaments/{id}/status
+Changes tournament status:
 CREATED / REGISTRATION_OPENED / REGISTRATION_CLOSED / IN_PROGRESS / FINISHED
 
-### GET /tournaments?status=...  
-Filtrowanie turniejów po statusie.
+### GET /tournaments?status=...
+Filters tournaments by status.
 
-### POST /tournaments/{id}/register  
-Rejestracja drużyny do turnieju.
+### POST /tournaments/{id}/register
+Registers a team for a tournament.
 
-**Walidacja:**
-- turniej w statusie **REGISTRATION_OPENED**  
-- trener ma drużynę  
-- drużyna: **7–10** zawodników  
-- co najmniej **1 GK**  
-- drużyna nie może rejestrować się dwa razy  
-- limit drużyn nie może być przekroczony  
-- po zapełnieniu — status zmienia się na REGISTRATION_CLOSED  
+**Validation:**
+- tournament must be in **REGISTRATION_OPENED** status
+- trainer must have a team
+- team must have **7-10** players
+- at least **1 GK**
+- team cannot register twice
+- team limit cannot be exceeded
+- when full, status changes to REGISTRATION_CLOSED
 
-### POST /tournaments/import  
-Import turniejów z XML.
+### POST /tournaments/import
+Imports tournaments from XML.
 
 ---
 
 # BRACKET
 
-### GET /tournaments/{id}/matches  
-Zwraca drabinkę turnieju w formie:
+### GET /tournaments/{id}/matches
+Returns tournament bracket in the following format:
 
 ```json
 {
@@ -245,94 +245,87 @@ Zwraca drabinkę turnieju w formie:
 }
 ```
 
-Dane są posortowane:
-- rundy rosnąco (1 -> 2 -> … -> finał)
-- mecze w rundzie po numerze meczu
+Data is sorted by:
+- rounds ascending (1 -> 2 -> ... -> final)
+- matches in each round by match number
 
-Przykład:
-Turniej 8 drużyn:
-Runda 1 — Ćwierćfinały (4 mecze)
-    8 drużyn -> 4 mecze - 4 zwycięzców
-Runda 2 — Półfinały (2 mecze)
-    4 drużyny -> 2 mecze - 2 zwycięzców
-Runda 3 — Finał (1 mecz)
-    2 drużyny -> 1 zwycięzca - turniej FINISHED
+Example:
+8-team tournament:
+Round 1 - Quarterfinals (4 matches)
+    8 teams -> 4 matches -> 4 winners
+Round 2 - Semifinals (2 matches)
+    4 teams -> 2 matches -> 2 winners
+Round 3 - Final (1 match)
+    2 teams -> 1 winner -> tournament FINISHED
 
-### POST /tournaments/{id}/next-round  
-Generuje kolejną rundę meczów.
+### POST /tournaments/{id}/next-round
+Generates the next round of matches.
 
-Zasady generowania:
-- runda 1 - losowe pary drużyn  
-- następne rundy - pary zwycięzców poprzedniej rundy  
-- wynik meczu generowany losowo 0–5  
-- zwycięzca awansuje dalej  
-- kiedy zostaje 1 drużyna - turniej się kończy, ustawiany status FINISHED  
-
----
-
-# Logika turniejów
-
-- ADMIN tworzy turniej, ustawiony CREATED  
-- ADMIN otwiera rejestrację, ustawia REGISTRATION_OPENED  
-- Trenerzy zgłaszają drużyny  
-- Gdy limit drużyn zrówna się z liczbą zgłoszonych, system ustawia REGISTRATION_CLOSED  
-- ADMIN uruchamia 1 rundę, ustawiany status IN_PROGRESS  
-- ADMIN generuje kolejne rundy aż do finału  
-- System automatycznie ustala zwycięzcę i ustawia status FINISHED  
+Generation rules:
+- round 1 - random team pairings
+- next rounds - pairings of winners from previous round
+- match score is generated randomly (0-5)
+- winner advances to next round
+- when 1 team remains, tournament ends and status becomes FINISHED
 
 ---
 
-# Import turniejów z XML
+# Tournament Flow
 
-Obsługiwany format:
+- ADMIN creates a tournament, status is CREATED
+- ADMIN opens registration, sets REGISTRATION_OPENED
+- Trainers register teams
+- When registered teams reach the limit, system sets REGISTRATION_CLOSED
+- ADMIN starts round 1, status becomes IN_PROGRESS
+- ADMIN generates next rounds up to the final
+- System automatically determines the winner and sets FINISHED
+
+---
+
+# Tournament XML Import
+
+Supported format:
 
 ```xml
 <tournaments>
     <tournament>
-        <name>Turniej 1</name>
+        <name>Tournament 1</name>
         <startDate>2025-06-10</startDate>
         <teamCount>8</teamCount>
     </tournament>
 </tournaments>
 ```
 
-Każdy rekord jest walidowany tak samo jak żądania REST.
+Each record is validated the same way as REST requests.
 
-Zwracane są:
-- liczba zaimportowanych
-- liczba pominiętych
-- lista błędów
+Returned values:
+- number imported
+- number skipped
+- list of errors
 
 ---
 
-# Testy jednostkowe
+# Unit Tests
 
-## BracketServiceTest sprawdza:
-- poprawne generowanie pierwszej rundy  
-- blokadę generowania rundy w przypadku turnieju zakończonego  
-- blokadę generowania rundy, gdy turniej jest w niewłaściwym statusie  
-- poprawne grupowanie meczów podczas pobierania drabinki  
-- poprawne zwracanie pustej drabinki, gdy brak meczów  
+## BracketServiceTest checks:
+- correct first-round generation
+- blocking round generation when tournament is finished
+- blocking round generation when tournament has invalid status
+- correct match grouping when fetching bracket
+- correct empty bracket response when no matches exist
 
-## TournamentServiceTest sprawdza:
-- blokadę tworzenia turnieju o istniejącej nazwie  
-- walidację liczby drużyn 2, 4, 8, 16  
-- pobieranie turnieju po ID  
-- obsługę przypadku, gdy turniej nie istnieje  
-- usuwanie turnieju  
-- walidację rejestracji drużyny  
+## TournamentServiceTest checks:
+- blocking creation of tournament with existing name
+- validation of allowed team counts: 2, 4, 8, 16
+- fetching tournament by ID
+- handling non-existing tournament
+- deleting tournament
+- team registration validation
 
-## TrainerServiceTest sprawdza:
-- pobieranie profilu trenera z poprawną rolą  
-- blokowanie dostępu dla roli innej niż TRAINER  
-- aktualizację danych trenera  
-- aktualizację pól  
-- weryfikację zapisu do repozytorium  
-
-## TrainerServiceTest 
-- pobieranie profilu trenera z poprawną rolą  
-- blokowanie dostępu dla roli innej niż TRAINER  
-- aktualizację danych trenera  
-- aktualizację pól  
-- weryfikację zapisu do repozytorium  
+## TrainerServiceTest checks:
+- fetching trainer profile with correct role
+- blocking access for roles other than TRAINER
+- updating trainer data
+- updating fields
+- verifying repository save operation
 
